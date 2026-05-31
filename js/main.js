@@ -128,24 +128,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ── Product card expand/collapse ──
+  // ── Product card click → navigate to product page ──
   document.querySelectorAll('.product-card').forEach(card => {
     card.addEventListener('click', (e) => {
-      // Don't trigger if clicking a link inside
+      // Don't trigger if clicking a link inside (let the link handle it)
       if (e.target.closest('a')) return;
 
-      const detail = card.querySelector('.product-detail');
-      if (detail) {
-        const wasActive = detail.classList.contains('active');
-
-        // Close all other details
-        document.querySelectorAll('.product-detail.active').forEach(d => {
-          d.classList.remove('active');
-        });
-
-        if (!wasActive) {
-          detail.classList.add('active');
-        }
+      // Navigate to the product page
+      const link = card.querySelector('.learn-more');
+      if (link && link.href) {
+        window.location.href = link.href;
       }
     });
   });
@@ -294,12 +286,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ── Contact form validation ──
+  // ── Contact form — Web3Forms submission ──
   const contactForm = document.getElementById('contactForm');
   const formSuccess = document.querySelector('.form-success');
+  const submitBtn = document.getElementById('submitBtn');
 
   if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
+    contactForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       let isValid = true;
 
@@ -336,8 +329,32 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (isValid) {
-        contactForm.style.display = 'none';
-        formSuccess.classList.add('active');
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+
+        try {
+          const formData = new FormData(contactForm);
+          const response = await fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            body: formData
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            contactForm.style.display = 'none';
+            formSuccess.classList.add('active');
+            contactForm.reset();
+          } else {
+            alert('Something went wrong. Please try again or contact us directly at nishaoilfilter@gmail.com');
+          }
+        } catch (error) {
+          alert('Network error. Please check your connection and try again.');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send Enquiry →';
+        }
       }
     });
   }
@@ -357,4 +374,71 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+});
+
+/* ── Image Lightbox ── */
+function openLightbox(src, title, rotate = false) {
+  const lightbox  = document.getElementById('imageLightbox');
+  const img       = document.getElementById('lightboxImg');
+  const canvas    = document.getElementById('lightboxCanvas');
+  const titleEl   = document.getElementById('lightboxTitle');
+
+  titleEl.textContent = title;
+  lightbox.classList.add('active');
+  document.body.style.overflow = 'hidden';
+
+  if (rotate) {
+    // Draw the image rotated -90° onto a canvas so layout dimensions
+    // are actually landscape — this allows proper scrolling.
+    img.style.display = 'none';
+    canvas.style.display = 'block';
+
+    const tempImg = new Image();
+    tempImg.onload = function () {
+      // Canvas gets landscape dimensions (w and h swapped)
+      canvas.width  = tempImg.naturalHeight;
+      canvas.height = tempImg.naturalWidth;
+
+      const ctx = canvas.getContext('2d');
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.drawImage(tempImg, -tempImg.naturalWidth / 2, -tempImg.naturalHeight / 2);
+
+      // Apply sharpening filter via CSS on the canvas
+      canvas.style.filter = 'contrast(1.08) brightness(0.97)';
+      canvas.style.borderRadius = '8px';
+      canvas.style.boxShadow = '0 25px 80px rgba(0,0,0,0.5)';
+      canvas.style.maxWidth = '100%';
+      canvas.style.height = 'auto';
+    };
+    tempImg.src = src;
+
+  } else {
+    canvas.style.display = 'none';
+    img.style.display = 'block';
+    img.src = src;
+    img.alt = title;
+    img.classList.remove('rotate-landscape');
+  }
+}
+
+function closeLightbox() {
+  const lightbox = document.getElementById('imageLightbox');
+  lightbox.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// Close lightbox on click outside image or Escape key
+document.addEventListener('DOMContentLoaded', () => {
+  const lightbox = document.getElementById('imageLightbox');
+  if (lightbox) {
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox || e.target.classList.contains('lightbox-body')) {
+        closeLightbox();
+      }
+    });
+  }
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeLightbox();
+  });
 });

@@ -1,0 +1,7 @@
+# Node modules
+node_modules/
+image-tools/node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
