@@ -661,7 +661,7 @@ ul {
 .logo-track {
   display: flex;
   width: max-content;
-  animation: scroll-left-to-right 28s linear infinite;
+  animation: scroll-right-to-left 28s linear infinite;
 }
 
 .logo-slide {
@@ -685,12 +685,12 @@ ul {
   transform: scale(1.06);
 }
 
-@keyframes scroll-left-to-right {
+@keyframes scroll-right-to-left {
   0% {
-    transform: translateX(-50%);
+    transform: translateX(-14.2857%);
   }
   100% {
-    transform: translateX(0);
+    transform: translateX(-47.6190%);
   }
 }
 
