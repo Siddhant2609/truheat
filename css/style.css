@@ -638,10 +638,10 @@ ul {
   overflow: hidden;
   width: 100%;
   padding: 2.2rem 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .marquee-title {
@@ -654,6 +654,8 @@ ul {
   text-align: center;
   margin-bottom: 1.5rem;
   opacity: 0.85;
+  width: 100%;
+  display: block;
 }
 
 .logo-track {
